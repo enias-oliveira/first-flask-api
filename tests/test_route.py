@@ -1,5 +1,6 @@
 from flask import Flask
 from pytest import fixture
+from os import remove
 
 from app import create_app
 
@@ -11,7 +12,9 @@ def app():
 
 @fixture
 def client(app: Flask):
-    return app.test_client()
+    yield app.test_client()
+
+    remove("data/users_test.csv")
 
 
 class TestSignup:
@@ -23,15 +26,22 @@ class TestSignup:
             "age": 19,
         }
 
-        expected_response = {
+        expected_body = {
             "id": "1",
             "name": "Naruto Uzumaki",
             "email": "naruto@konoha.com",
-            "age": 19,
+            "age": "19",
         }
-        actual_response = client.post("/signup", json=given)
 
-        assert actual_response == expected_response
+        expected_status = 201
+
+        response = client.post("/signup", json=given)
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_body
+        assert actual_status == expected_status
 
     def test_signup_duplicated(self, client):
         given = {
@@ -41,12 +51,12 @@ class TestSignup:
             "age": 20,
         }
 
-        expected_response = {}
-        expected_status = "422 UNPROCESSABLE ENTITY"
+        expected_body = {}
+        expected_status = 422
 
         response = client.post("/signup", json=given)
-        actual_response = response.get_json()
+        actual_body = response.get_json()
         actual_status = response.status
 
-        assert actual_response == expected_response
+        assert actual_body == expected_body
         assert actual_status == expected_status
