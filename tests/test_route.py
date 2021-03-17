@@ -1,6 +1,6 @@
 from flask import Flask
 from pytest import fixture
-from os import remove
+from os import remove, path
 
 from app import create_app
 
@@ -12,9 +12,12 @@ def app():
 
 @fixture
 def client(app: Flask):
+    test_path = "data/users_test.csv"
+
     yield app.test_client()
 
-    remove("data/users_test.csv")
+    if path.isfile(test_path):
+        remove(test_path)
 
 
 class TestSignup:
@@ -44,7 +47,14 @@ class TestSignup:
         assert actual_status == expected_status
 
     def test_signup_duplicated(self, client):
-        given = {
+        first_signup = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 19,
+        }
+
+        second_signup = {
             "name": "Naruto Santos",
             "email": "naruto@konoha.com",
             "password": "eunaosouoNaruto123",
@@ -52,11 +62,50 @@ class TestSignup:
         }
 
         expected_body = {}
-        expected_status = 422
+        expected_status_code = 422
 
-        response = client.post("/signup", json=given)
+        client.post("/signup", json=first_signup)
+        response = client.post("/signup", json=second_signup)
+
         actual_body = response.get_json()
-        actual_status = response.status
+        actual_status_code = response.status_code
 
         assert actual_body == expected_body
-        assert actual_status == expected_status
+        assert actual_status_code == expected_status_code
+
+
+class TestLogin:
+    def test_login_standard(self, client):
+        given = {"email": "naruto@konoha.com", "password": "imgoingtobeahokage123"}
+
+        expected_response_body = {
+            "id": "1",
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "age": "19",
+        }
+
+        expected_response_status = 200
+
+        response = client.post("/login", json=given)
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status
+
+    def test_login_invalid_credentials(self, client):
+        given = {"email": "saske@konoha.com", "password": "imgoingtobeahokage123"}
+
+        expected_response_body = {}
+
+        expected_response_status = 401
+
+        response = client.post("/login", json=given)
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status

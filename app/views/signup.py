@@ -22,4 +22,8 @@ def signup_index():
     users = UsersModel(FILENAME)
     created_user = users.signup(request_user)
 
-    return created_user, HTTPStatus.CREATED
+    if not created_user:
+        return {}, HTTPStatus.UNPROCESSABLE_ENTITY
+
+    else:
+        return created_user, HTTPStatus.CREATED
