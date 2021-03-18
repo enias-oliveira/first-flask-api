@@ -27,10 +27,24 @@ class UsersModel:
 
         return self.get_user(new_user_id)
 
+    def login(self, credentials):
+        users = self._get_all_users()
+
+        try:
+            potential_user = next(
+                user for user in users if user["email"] == credentials["email"]
+            )
+            if credentials["password"] == potential_user["password"]:
+                return self.get_user(potential_user["id"])
+
+        except StopIteration:
+            return {}
+
     def _get_new_id(self):
-        with open(self.filename, "r") as readable:
-            reader = csv.DictReader(readable)
-            id_list = [user["id"] for user in list(reader)]
+        try:
+            with open(self.filename, "r") as readable:
+                reader = csv.DictReader(readable)
+                id_list = [user["id"] for user in list(reader)]
 
             if not id_list:
                 return 1
@@ -38,11 +52,18 @@ class UsersModel:
                 last_id = int(max(id_list))
                 return last_id + 1
 
+        except FileNotFoundError:
+            return 1
+
     def _get_all_users(self):
+        def convert_age_to_int(user):
+            user["age"] = int(user["age"])
+            return user
+
         try:
             with open(self.filename, "r") as readable:
                 reader = csv.DictReader(readable)
-                return list(reader)
+                return [convert_age_to_int(user) for user in reader]
         except FileNotFoundError:
             return []
 
@@ -51,6 +72,7 @@ class UsersModel:
 
         try:
             searched_user = next(user for user in users if user["id"] == str(id))
+
             return {
                 key: searched_user[key]
                 for key in searched_user.keys() & {"id", "name", "email", "age"}
