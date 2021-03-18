@@ -117,3 +117,51 @@ class TestLogin:
 
         assert actual_body == expected_response_body
         assert actual_status == expected_response_status
+
+
+class TestProfile:
+    def test_profile_patch_standard(self, client):
+        standard_user = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 19,
+        }
+        client.post("/signup", json=standard_user)
+
+        given = {"age": 21}
+        response = client.patch("/profile/1", json=given)
+
+        expected_response_status = 200
+        expected_response_body = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 21,
+        }
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status
+
+    def test_delete_standard(self, client):
+        standard_user = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 19,
+        }
+        client.post("/signup", json=standard_user)
+
+        expected_response_body = ""
+        expected_response_status = 204
+
+        response = client.delete("/profile/1")
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status

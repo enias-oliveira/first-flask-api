@@ -173,6 +173,7 @@ class TestUserModel:
             "name": "Naruto Uzumaki",
             "email": "naruto@konoha.com",
             "age": 19,
+            "password": "imgoingtobeahokage123",
         }
 
         actual_when_user_found = users.get_user(1)

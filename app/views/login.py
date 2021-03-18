@@ -23,6 +23,6 @@ def login_index():
     logged_user = users.login(user_credentials)
 
     if not logged_user:
-        return logged_user, 401
+        return logged_user, HTTPStatus.UNAUTHORIZED
 
-    return logged_user, 200
+    return logged_user, HTTPStatus.OK
