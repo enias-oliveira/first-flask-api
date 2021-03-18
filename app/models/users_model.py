@@ -11,6 +11,8 @@ class UsersModel:
     def signup(self, user: dict):
         file_headers = ["id", "name", "age", "email", "password"]
 
+        user["email"] = user["email"].lower()
+
         if self._is_email_registered(user["email"]):
             return {}
 
@@ -21,21 +23,23 @@ class UsersModel:
                 writer.writeheader()
 
             new_user_id = self._get_new_id()
-            user_with_id = {"id": new_user_id, **user}
+            user_with_id = {"id": str(new_user_id), **user}
 
             writer.writerow(user_with_id)
 
-        return self.get_user(new_user_id)
+            expected_keys = ["id", "name", "email", "age"]
+            return {key: user_with_id[key] for key in expected_keys}
 
     def login(self, credentials):
         users = self._get_all_users()
 
         try:
             potential_user = next(
-                user for user in users if user["email"] == credentials["email"]
+                user for user in users if user["email"] == credentials["email"].lower()
             )
             if credentials["password"] == potential_user["password"]:
-                return self.get_user(potential_user["id"])
+                expected_keys = ["id", "name", "email", "age"]
+                return {key: potential_user[key] for key in expected_keys}
 
         except StopIteration:
             return {}
@@ -71,17 +75,33 @@ class UsersModel:
         users = self._get_all_users()
 
         try:
-            searched_user = next(user for user in users if user["id"] == str(id))
+            return next(user for user in users if user["id"] == str(id))
 
-            return {
-                key: searched_user[key]
-                for key in searched_user.keys() & {"id", "name", "email", "age"}
-            }
         except StopIteration:
             return {}
 
     def _is_email_registered(self, email):
         users = self._get_all_users()
-
         emails = [user["email"] for user in users]
         return email in emails
+
+    def update_user(self, id, **kwargs):
+        target_user = self.get_user(id)
+        target_user.update(kwargs)
+
+        users = self._get_all_users()
+
+        updated_users = [
+            user if user["id"] != str(id) else target_user for user in users
+        ]
+
+        with open(self.filename, "w") as writable_file:
+            file_headers = ["id", "name", "age", "email", "password"]
+
+            writer = csv.DictWriter(writable_file, fieldnames=file_headers)
+
+            writer.writeheader()
+            writer.writerows(updated_users)
+
+        expected_keys = ["name", "email", "password", "age"]
+        return {key: target_user[key] for key in expected_keys}
