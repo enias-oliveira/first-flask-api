@@ -33,7 +33,7 @@ class TestSignup:
             "id": "1",
             "name": "Naruto Uzumaki",
             "email": "naruto@konoha.com",
-            "age": "19",
+            "age": 19,
         }
 
         expected_status = 201
@@ -77,12 +77,20 @@ class TestSignup:
 class TestLogin:
     def test_login_standard(self, client):
         given = {"email": "naruto@konoha.com", "password": "imgoingtobeahokage123"}
+        standard_user = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 19,
+        }
+
+        client.post("/signup", json=standard_user)
 
         expected_response_body = {
             "id": "1",
             "name": "Naruto Uzumaki",
             "email": "naruto@konoha.com",
-            "age": "19",
+            "age": 19,
         }
 
         expected_response_status = 200
