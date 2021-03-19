@@ -34,14 +34,15 @@ class UsersModel:
         users = self.get_all_users()
 
         try:
-            potential_user = next(
+            potential_user = [
                 user for user in users if user["email"] == credentials["email"].lower()
-            )
+            ][0]
+
             if credentials["password"] == potential_user["password"]:
                 expected_keys = ["id", "name", "email", "age"]
                 return {key: potential_user[key] for key in expected_keys}
 
-        except StopIteration:
+        except IndexError:
             return {}
 
     def _get_new_id(self):
