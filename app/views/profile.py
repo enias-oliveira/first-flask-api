@@ -29,6 +29,10 @@ def profile_patch(user_id):
 def profile_delete(user_id):
 
     users = UsersModel(FILENAME)
-    users.delete(user_id)
 
-    return "", HTTPStatus.NO_CONTENT
+    if users.delete(user_id):
+        return "", HTTPStatus.NO_CONTENT
+    else:
+        return {
+            "message": HTTPStatus.UNPROCESSABLE_ENTITY.phrase
+        }, HTTPStatus.UNPROCESSABLE_ENTITY

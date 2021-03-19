@@ -116,4 +116,19 @@ class UsersModel:
         return {key: target_user[key] for key in expected_keys}
 
     def delete(self, id):
-        return id
+        users = self.get_all_users()
+
+        if not self.get_user(id):
+            return False
+
+        updated_users = [user for user in users if user["id"] != str(id)]
+
+        with open(self.filename, "w") as writable_file:
+            file_headers = ["id", "name", "age", "email", "password"]
+
+            writer = csv.DictWriter(writable_file, fieldnames=file_headers)
+
+            writer.writeheader()
+            writer.writerows(updated_users)
+
+        return True
