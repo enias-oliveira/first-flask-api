@@ -16,7 +16,7 @@ FILENAME = "data/users.csv" if env("TEST") != "true" else "data/users_test.csv"
 
 
 @profile.route("/<int:user_id>", methods=["PATCH"])
-def profile_patch(user_id):
+def update_user(user_id):
     patch_items = request.get_json()
     users = UsersModel(FILENAME)
 
@@ -26,7 +26,7 @@ def profile_patch(user_id):
 
 
 @profile.route("/<int:user_id>", methods=["DELETE"])
-def profile_delete(user_id):
+def delete_user(user_id):
 
     users = UsersModel(FILENAME)
 

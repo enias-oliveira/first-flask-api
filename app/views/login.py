@@ -7,7 +7,7 @@ from environs import Env
 from app.models.users_model import UsersModel
 
 
-login = Blueprint("login", __name__)
+login_bp = Blueprint("login_bp", __name__)
 
 env = Env()
 env.read_env()
@@ -15,8 +15,8 @@ env.read_env()
 FILENAME = "data/users.csv" if env("TEST") != "true" else "data/users_test.csv"
 
 
-@login.route("/login", methods=["POST"])
-def login_index():
+@login_bp.route("/login", methods=["POST"])
+def login():
     user_credentials = request.get_json()
     users = UsersModel(FILENAME)
 

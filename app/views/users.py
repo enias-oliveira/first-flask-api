@@ -16,7 +16,7 @@ FILENAME = "data/users.csv" if env("TEST") != "true" else "data/users_test.csv"
 
 
 @users_bp.route("/users")
-def users_bp_index():
+def all_users():
     users = UsersModel(FILENAME)
     protected_users = users.get_all_users_safe()
     return jsonify(protected_users), HTTPStatus.OK
