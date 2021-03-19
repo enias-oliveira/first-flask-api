@@ -6,6 +6,8 @@ import csv
 
 from app.models.users_model import UsersModel
 
+# Para usar os teste, mude a variavel de ambiente TEST para true
+
 
 @fixture
 def users_model(tmp_path):

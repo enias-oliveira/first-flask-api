@@ -4,6 +4,8 @@ from os import remove, path
 
 from app import create_app
 
+# Para usar os teste, mude a variavel de ambiente TEST para true
+
 
 @fixture
 def app():
