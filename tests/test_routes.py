@@ -146,7 +146,7 @@ class TestProfile:
         assert actual_body == expected_response_body
         assert actual_status == expected_response_status
 
-    def test_delete_standard(self, client):
+    def test_profile_delete_standard(self, client):
         standard_user = {
             "name": "Naruto Uzumaki",
             "email": "naruto@konoha.com",
@@ -155,10 +155,52 @@ class TestProfile:
         }
         client.post("/signup", json=standard_user)
 
-        expected_response_body = ""
-        expected_response_status = 204
-
         response = client.delete("/profile/1")
+
+        expected_response_status = 204
+        expected_response_body = {}
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status
+
+    def test_users_standard(self, client):
+        first_user = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 21,
+        }
+        client.post("/signup", json=first_user)
+
+        second_user = {
+            "name": "John Cena",
+            "email": "john_cena@wwe.com",
+            "password": "thechampishere",
+            "age": 19,
+        }
+        client.post("/signup", json=second_user)
+
+        expected_response_body = [
+            {
+                "id": "1",
+                "name": "Naruto Uzumaki",
+                "email": "naruto@konoha.com",
+                "age": 21,
+            },
+            {
+                "id": "2",
+                "name": "John Cena",
+                "email": "john_cena@wwe.com",
+                "age": 19,
+            },
+        ]
+
+        expected_response_status = 200
+
+        response = client.get("/users")
 
         actual_body = response.get_json()
         actual_status = response.status_code

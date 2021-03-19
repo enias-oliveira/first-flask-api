@@ -138,7 +138,7 @@ class TestUserModel:
         users, filename = users_model
 
         expected_with_no_users_in_csv = []
-        actual_with_no_users_in_csv = users._get_all_users()
+        actual_with_no_users_in_csv = users.get_all_users()
 
         assert actual_with_no_users_in_csv == expected_with_no_users_in_csv
 
@@ -154,7 +154,7 @@ class TestUserModel:
             }
         ]
 
-        actual_with_one_user_in_csv = users._get_all_users()
+        actual_with_one_user_in_csv = users.get_all_users()
 
         assert actual_with_one_user_in_csv == expected_with_one_user_in_csv
 
@@ -179,3 +179,29 @@ class TestUserModel:
         actual_when_user_found = users.get_user(1)
 
         assert actual_when_user_found == expected_when_user_found
+
+    def test_update_user(self, users_model, standard_user):
+        users, filename = users_model
+        users.signup(standard_user)
+
+        expected_when_user_updated = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 21,
+        }
+
+        actual_when_user_updated = users.update_user(1, age=21)
+
+        assert expected_when_user_updated == actual_when_user_updated
+
+    def test_delete_user(self, users_model, standard_user):
+        users, filename = users_model
+        users.signup(standard_user)
+
+        users.delete(1)
+
+        expected_deleted_user = {}
+        actual_deleted_user = users.get_user(1)
+
+        assert actual_deleted_user == expected_deleted_user
