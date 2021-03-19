@@ -31,7 +31,7 @@ class UsersModel:
             return {key: user_with_id[key] for key in expected_keys}
 
     def login(self, credentials):
-        users = self._get_all_users()
+        users = self.get_all_users()
 
         try:
             potential_user = next(
@@ -59,7 +59,16 @@ class UsersModel:
         except FileNotFoundError:
             return 1
 
-    def _get_all_users(self):
+    def get_all_users_safe(self):
+        users = self.get_all_users()
+
+        def protect_user(user):
+            expected_keys = ["id", "name", "email", "age"]
+            return {key: user[key] for key in expected_keys}
+
+        return [protect_user(user) for user in users]
+
+    def get_all_users(self):
         def convert_age_to_int(user):
             user["age"] = int(user["age"])
             return user
@@ -72,7 +81,7 @@ class UsersModel:
             return []
 
     def get_user(self, id):
-        users = self._get_all_users()
+        users = self.get_all_users()
 
         try:
             return next(user for user in users if user["id"] == str(id))
@@ -81,7 +90,7 @@ class UsersModel:
             return {}
 
     def _is_email_registered(self, email):
-        users = self._get_all_users()
+        users = self.get_all_users()
         emails = [user["email"] for user in users]
         return email in emails
 
@@ -89,7 +98,7 @@ class UsersModel:
         target_user = self.get_user(id)
         target_user.update(kwargs)
 
-        users = self._get_all_users()
+        users = self.get_all_users()
 
         updated_users = [
             user if user["id"] != str(id) else target_user for user in users
@@ -105,3 +114,6 @@ class UsersModel:
 
         expected_keys = ["name", "email", "password", "age"]
         return {key: target_user[key] for key in expected_keys}
+
+    def delete(self, id):
+        return id
