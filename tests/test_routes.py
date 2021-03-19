@@ -61,8 +61,8 @@ class TestSignup:
             "age": 20,
         }
 
-        expected_body = {}
         expected_status_code = 422
+        expected_body = {}
 
         client.post("/signup", json=first_signup)
         response = client.post("/signup", json=second_signup)
@@ -153,12 +153,33 @@ class TestProfile:
             "password": "imgoingtobeahokage123",
             "age": 19,
         }
+
         client.post("/signup", json=standard_user)
 
         response = client.delete("/profile/1")
 
         expected_response_status = 204
-        expected_response_body = {}
+        expected_response_body = None
+
+        actual_body = response.get_json()
+        actual_status = response.status_code
+
+        assert actual_body == expected_response_body
+        assert actual_status == expected_response_status
+
+    def test_profile_delete_inexisting_user(self, client):
+        standard_user = {
+            "name": "Naruto Uzumaki",
+            "email": "naruto@konoha.com",
+            "password": "imgoingtobeahokage123",
+            "age": 19,
+        }
+        client.post("/signup", json=standard_user)
+
+        response = client.delete("/profile/2")
+
+        expected_response_status = 422
+        expected_response_body = {"message": "Unprocessable Entity"}
 
         actual_body = response.get_json()
         actual_status = response.status_code

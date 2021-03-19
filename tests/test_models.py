@@ -205,3 +205,30 @@ class TestUserModel:
         actual_deleted_user = users.get_user(1)
 
         assert actual_deleted_user == expected_deleted_user
+
+    def test_deleted_user_csv_output(self, users_model, standard_user):
+        users, filename = users_model
+
+        second_standard_user = {
+            "name": "John Cena",
+            "email": "john_cena@wwe.com",
+            "password": "thechamp",
+            "age": 40,
+        }
+        users.signup(standard_user)
+        users.signup(second_standard_user)
+
+        expected_users = [
+            {
+                "id": "2",
+                "name": "John Cena",
+                "email": "john_cena@wwe.com",
+                "password": "thechamp",
+                "age": 40,
+            }
+        ]
+
+        users.delete(1)
+        actual_users = users.get_all_users()
+
+        assert actual_users == expected_users
